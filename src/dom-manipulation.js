@@ -149,6 +149,9 @@ export const removeNodeFromDOMFlow = (childData, verticalAlignment) => {
     : boundingBox.top;
 
   const styles = {
+    transition: '',
+    transform: '',
+    opacity: computed.opacity,
     position: 'absolute',
     top: `${topOffset - margins['margin-top']}px`,
     left: `${boundingBox.left - margins['margin-left']}px`,
