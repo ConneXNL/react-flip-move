@@ -108,6 +108,8 @@ class FlipMove extends Component {
     // and duration including an additional 100ms.
     this.cleanupFallback = null;
 
+    this.triggeredByHook = false;
+
     this.doesChildNeedToBeAnimated = this.doesChildNeedToBeAnimated.bind(this);
     this.runAnimation = this.runAnimation.bind(this);
   }
@@ -184,7 +186,7 @@ class FlipMove extends Component {
     } else {
       newChildren = this.calculateNextSetOfChildren(nextProps.children);
     }
-
+    
     this.setState({ children: newChildren });
   }
 
@@ -206,11 +208,12 @@ class FlipMove extends Component {
     const oldChildrenKeys = this.props.children.map(d => d.key);
     const nextChildrenKeys = previousProps.children.map(d => d.key);
 
-    const shouldTriggerFLIP = (
+
+    let shouldTriggerFLIP = (
       !arraysEqual(oldChildrenKeys, nextChildrenKeys) && !this.isAnimationDisabled(this.props)
     );
 
-    if (shouldTriggerFLIP) {
+    if (shouldTriggerFLIP || !this.triggeredByHook) {
       this.prepForAnimation();
 
       // We are updating the parent bounding box as this might have moved because of other components, for example
@@ -244,6 +247,10 @@ class FlipMove extends Component {
         }
       }, expectedToBeFinished)
     }
+
+
+    this.triggeredByHook = false;
+
 
   }
 
@@ -696,6 +703,7 @@ class FlipMove extends Component {
 
       this.tracker.clearChildrenThatLeft();
       this.transitionEndHandlerMap = {};
+      this.triggeredByHook = true;
 
       this.setState({ children: nextChildren }, () => {
         if (typeof this.props.onFinishAll === 'function') {
