@@ -188,6 +188,13 @@ class FlipMove extends Component {
     this.setState({ children: newChildren });
   }
 
+  updateParentBoundingBox(){
+    this.parentData.boundingBox = this.props.getPosition(
+      this.parentData.domNode
+    );
+  }
+
+
   componentDidUpdate(previousProps) {
     // If the children have been re-arranged, moved, or added/removed,
     // trigger the main FLIP animation.
@@ -205,8 +212,12 @@ class FlipMove extends Component {
 
     if (shouldTriggerFLIP) {
       this.prepForAnimation();
-      this.runAnimation();
 
+      // We are updating the parent bounding box as this might have moved because of other components, for example
+      // other FlipMoves. This basically fixes problems with stacking FlipMoves.
+      this.updateParentBoundingBox();
+
+      this.runAnimation();
 
       // As a fallback to cover potential bugs with transitionend events still not triggering (despite our
       // efforts) we are going to force a cleanup after X ms.
@@ -726,13 +737,11 @@ class FlipMove extends Component {
   }
 
   updateBoundingBoxCaches() {
-    // This is the ONLY place that parentData and childrenData's
+    // This is the ONLY place that childrenData's
     // bounding boxes are updated. They will be calculated at other times
     // to be compared to this value, but it's important that the cache is
     // updated once per update.
-    this.parentData.boundingBox = this.props.getPosition(
-      this.parentData.domNode
-    );
+    this.updateParentBoundingBox();
 
     this.state.children.forEach((child) => {
       // It is possible that a child does not have a `key` property;
