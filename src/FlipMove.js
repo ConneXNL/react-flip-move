@@ -225,8 +225,8 @@ class FlipMove extends Component {
       this.cleanupFallback = setTimeout(() => {
         const remainingTransitions = Object.values(this.transitionEndHandlerMap);
         if (remainingTransitions.length > 0) {
-          console.log("We forced a cleanup. If you are reading this and you " +
-            "can replicate this please file an issue in FlipMove on github");
+          // You did some really weird stuff for this to trigger...
+          // We are going to do a manual cleanup for now until we can cover all the super edge cases...
           Object.values(this.transitionEndHandlerMap).forEach(({ callback }) => {
             callback();
           })
@@ -393,8 +393,6 @@ class FlipMove extends Component {
 
     /*console.log("Shuffled:");
     console.log(this.childrenHaveShuffled);*/
-
-
     return updatedChildren;
   }
 
@@ -641,7 +639,7 @@ class FlipMove extends Component {
       if (!ev || ev.propertyName === "transform" || !waitForTransformToFinish) {
         // It's possible that this handler is fired not on our primary transition,
         // but on a nested transition (eg. a hover effect). Ignore these cases.
-        if (!ev || ev.target !== domNode) return;
+        if (ev && ev.target !== domNode) return;
 
         // Remove the 'transition' inline style we added. This is cleanup.
         domNode.style.transition = '';
@@ -672,6 +670,8 @@ class FlipMove extends Component {
 
   triggerFinishHooks(child, domNode) {
     if (this.props.onFinish) this.props.onFinish(child, domNode);
+
+    //console.log(Object.keys(this.transitionEndHandlerMap).length);
 
     // We check if all transitionEndHandlers have finished...
     if (Object.keys(this.transitionEndHandlerMap).length === 0) {
