@@ -112,6 +112,34 @@ class FlipMove extends Component {
     this.runAnimation = this.runAnimation.bind(this);
   }
 
+  componentWillUpdate(nextProps, nextState){
+
+    // We are clearing the previous styleBeforeRender as that is now history..
+    this.styleBeforeRender = {};
+
+    // We are going to save the current position of items that were already entering and leaving
+    // in order to be able to refresh their transition...
+
+    nextState.children.forEach((child) => {
+
+      // We are only saving the current position if the children have shuffled or its a leaving transition...
+      if (this.childrenHaveShuffled && (this.tracker.isEntering(child) || this.tracker.isLeaving(child))){
+
+        const childKey = child.key;
+        const { domNode } = this.childrenData[childKey];
+
+        if (domNode){
+          const {transform, opacity} = getComputedStyle(domNode);
+
+          this.styleBeforeRender[childKey] = {
+            transform,
+            opacity
+          };
+        }
+      }
+    });
+  }
+
   componentWillReceiveProps(nextProps) {
     // When the component is handed new props, we need to figure out the
     // "resting" position of all currently-rendered DOM nodes.
@@ -210,7 +238,7 @@ class FlipMove extends Component {
 
   calculateNextSetOfChildren(nextChildren) {
 
-    /*console.log("Old State...");
+     /*console.log("Old State...");
      console.log(JSON.stringify(this.state.children.map((child) => ({
      key: child.key,
      status: this.tracker.getStatus(child.key)
@@ -276,7 +304,7 @@ class FlipMove extends Component {
     // keep incrementing.
     let numOfChildrenLeaving = 0;
 
-    /*console.log("Before:");
+     /*console.log("Before:");
      console.log(this.state.children.map((child) => child.key));
 
      console.log("New children order:");
@@ -347,7 +375,7 @@ class FlipMove extends Component {
     });
 
 
-    /*console.log("After:");
+     /*console.log("After:");
      console.log(updatedChildren.map((child) => child.key));
      console.log(JSON.stringify(updatedChildren.map((child) => ({
      key: child.key,
@@ -364,7 +392,7 @@ class FlipMove extends Component {
     );
 
     /*console.log("Shuffled:");
-     console.log(this.childrenHaveShuffled);*/
+    console.log(this.childrenHaveShuffled);*/
 
 
     return updatedChildren;
@@ -644,8 +672,6 @@ class FlipMove extends Component {
 
   triggerFinishHooks(child, domNode) {
     if (this.props.onFinish) this.props.onFinish(child, domNode);
-
-    //console.log(Object.keys(this.transitionEndHandlerMap).length);
 
     // We check if all transitionEndHandlers have finished...
     if (Object.keys(this.transitionEndHandlerMap).length === 0) {
