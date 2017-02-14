@@ -186,7 +186,7 @@ class FlipMove extends Component {
     } else {
       newChildren = this.calculateNextSetOfChildren(nextProps.children);
     }
-    
+
     this.setState({ children: newChildren });
   }
 
@@ -210,10 +210,10 @@ class FlipMove extends Component {
 
 
     let shouldTriggerFLIP = (
-      !arraysEqual(oldChildrenKeys, nextChildrenKeys) && !this.isAnimationDisabled(this.props)
+      !arraysEqual(oldChildrenKeys, nextChildrenKeys)
     );
 
-    if (shouldTriggerFLIP || !this.triggeredByHook) {
+    if ((shouldTriggerFLIP || !this.triggeredByHook) && !this.isAnimationDisabled(this.props)) {
       this.prepForAnimation();
 
       // We are updating the parent bounding box as this might have moved because of other components, for example
