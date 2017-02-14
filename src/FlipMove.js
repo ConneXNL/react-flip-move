@@ -143,11 +143,7 @@ class FlipMove extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    // When the component is handed new props, we need to figure out the
-    // "resting" position of all currently-rendered DOM nodes.
-    // We store that data in this.parent and this.children,
-    // so it can be used later to work out the animation.
-    this.updateBoundingBoxCaches();
+
 
     // Next, we need to update our state, so that it contains our new set of
     // children. If animation is disabled or unsupported, this is easy;
@@ -176,14 +172,20 @@ class FlipMove extends Component {
         // We are removing any existing transitionend handler...
         const { key } = child;
 
-        if (key) {
-          const { domNode } = this.childrenData[child.key];
+        if (key && this.childrenData[child.key]) {
           this.removeTransitionEndHandler(child.key);
         }
 
       })
 
     } else {
+
+      // When the component is handed new props, we need to figure out the
+      // "resting" position of all currently-rendered DOM nodes.
+      // We store that data in this.parent and this.children,
+      // so it can be used later to work out the animation.
+      this.updateBoundingBoxCaches();
+
       newChildren = this.calculateNextSetOfChildren(nextProps.children);
     }
 
